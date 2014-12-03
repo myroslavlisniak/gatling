@@ -31,13 +31,19 @@ class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar wi
 
   type RequestOrGroup = Either[RequestStatsPath, GroupStatsPath]
 
-  private case class Stats(generalStats: GeneralStats, requestName: String = "", groupPath: List[String] = Nil, status: Option[Status] = None) {
+  private case class Stats(generalStats: GeneralStats,
+                           requestName: String = "",
+                           groupPath: List[String] = Nil,
+                           status: Option[Status] = None) {
+
     def request = requestName.trimToOption
     def group = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
   }
 
-  private def mockDataReaderWithStats(assertion: Assertion, stats: Stats*) = {
-      def mockAssertion(dataReader: DataReader) = when(dataReader.assertions) thenReturn List(assertion)
+  private def mockDataReaderWithStats(metric: AssertionWithPathAndTarget,
+                                      conditions: List[AssertionWithPathAndTarget => Assertion],
+                                      stats: Stats*) = {
+      def mockAssertion(dataReader: DataReader) = when(dataReader.assertions) thenReturn conditions.map(_(metric))
 
       def mockStats(stat: Stats, dataReader: DataReader) =
         when(dataReader.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
@@ -60,20 +66,20 @@ class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar wi
     mockedDataReader
   }
 
-  private def validateSingleAssertion(dataReader: DataReader) =
+  private def validateAssertions(dataReader: DataReader) =
     AssertionValidator.validateAssertions(dataReader).head.result
 
   "AssertionValidator" should "fail the assertion when the request path does not exist" in {
     val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")
-    val reader1 = mockDataReaderWithStats(details("foo").requestsPerSec.is(100), requestStats)
-    validateSingleAssertion(reader1) shouldBe false
+    val reader1 = mockDataReaderWithStats(details("foo").requestsPerSec, List(_.is(100)), requestStats)
+    validateAssertions(reader1) shouldBe false
 
     val groupStats = Stats(GeneralStats.NoPlot, groupPath = List("bar"))
-    val reader2 = mockDataReaderWithStats(details("foo").requestsPerSec.is(100), groupStats)
-    validateSingleAssertion(reader2) shouldBe false
+    val reader2 = mockDataReaderWithStats(details("foo").requestsPerSec, List(_.is(100)), groupStats)
+    validateAssertions(reader2) shouldBe false
 
     val requestAndGroupStats = Stats(GeneralStats.NoPlot, requestName = "baz", groupPath = List("bar"))
-    val reader3 = mockDataReaderWithStats(details("baz").requestsPerSec.is(100), requestAndGroupStats)
-    validateSingleAssertion(reader3) shouldBe false
+    val reader3 = mockDataReaderWithStats(details("baz").requestsPerSec, List(_.is(100)), requestAndGroupStats)
+    validateAssertions(reader3) shouldBe false
   }
 }
