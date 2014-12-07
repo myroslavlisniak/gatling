@@ -77,4 +77,8 @@ object GatlingBuild extends Build {
   lazy val bundle = gatlingModule("gatling-bundle")
     .settings(bundleSettings: _*)
     .settings(noCodeToPublish: _*)
+
+  lazy val tcp = gatlingModule("gatling-tcp")
+    .dependsOn(core % "compile->compile;test->test")
+    .settings(libraryDependencies ++= tcpDependencies)
 }
