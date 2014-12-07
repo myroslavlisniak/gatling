@@ -75,6 +75,7 @@ object Dependencies {
   val chartsDependencies = tdigest +: testDeps
 
   val metricsDependencies = tdigest +: testDeps
+  val tcpDependencies = Seq(netty, scalaXml) ++ testDeps
 
   def appDependencies = Seq(scopt)
 

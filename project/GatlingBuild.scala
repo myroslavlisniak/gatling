@@ -18,7 +18,7 @@ object GatlingBuild extends Build {
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
-    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler)
+    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler, tcp)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)
@@ -65,8 +65,13 @@ object GatlingBuild extends Build {
     .settings(scalaVersion := "2.10.4")
     .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
 
+
+  lazy val tcp = gatlingModule("gatling-tcp")
+    .dependsOn(core % "compile->compile;test->test")
+    .settings(libraryDependencies ++= tcpDependencies)
+
   lazy val app = gatlingModule("gatling-app")
-    .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
+    .dependsOn(core, http, jms, jdbc, redis, metrics, charts, tcp)
     .settings(libraryDependencies ++= appDependencies)
 
   lazy val recorder = gatlingModule("gatling-recorder")
@@ -77,4 +82,5 @@ object GatlingBuild extends Build {
   lazy val bundle = gatlingModule("gatling-bundle")
     .settings(bundleSettings: _*)
     .settings(noCodeToPublish: _*)
+
 }
