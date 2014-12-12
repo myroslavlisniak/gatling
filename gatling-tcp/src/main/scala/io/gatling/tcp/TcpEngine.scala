@@ -6,6 +6,7 @@ import java.util.concurrent.{Executors, TimeUnit}
 import akka.actor.ActorRef
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 import org.jboss.netty.bootstrap.ClientBootstrap
 import org.jboss.netty.channel.{Channels, ChannelPipeline, ChannelPipelineFactory}
@@ -38,6 +39,12 @@ object TcpEngine extends AkkaDefaults with StrictLogging{
     case _            => throw new UnsupportedOperationException("HTTP engine hasn't been started")
   }
 }
+case class TcpTx(session: Session,
+                  next : ActorRef,
+                  start : Long,
+                  check : Option[Check] = None,
+                  protocol : TcpProtocol)
+
 class TcpEngine {
   val numWorkers = Runtime.getRuntime.availableProcessors()
   val nettyTimer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
@@ -50,7 +57,7 @@ class TcpEngine {
 
   val encoder: StringEncoder = new StringEncoder(CharsetUtil.UTF_8)
 
-  def tcpClient(session: Session, protocol : TcpProtocol) = {
+  def tcpClient(session: Session, protocol : TcpProtocol, listener : MessageListener) = {
     val bootstrap = new ClientBootstrap(socketChannelFactory)
     bootstrap.setPipelineFactory(new ChannelPipelineFactory {
       override def getPipeline: ChannelPipeline = {
@@ -59,7 +66,7 @@ class TcpEngine {
         pipeline.addLast("prepender", prepender)
         pipeline.addLast("decoder", stringDecoder)
         pipeline.addLast("encoder", encoder)
-        //TODO message handler
+        pipeline.addLast("listener", listener)
         pipeline
       }
     })
@@ -67,7 +74,9 @@ class TcpEngine {
     (session, channel)
   }
 
-  def startTcpTransaction(actor : ActorRef) ={
+  def startTcpTransaction(tx: TcpTx, actor : ActorRef) ={
+    val listener = new MessageListener(actor)
 
+    val (session, channel) = tcpClient(tx.session,tx.protocol, listener)
   }
 }
