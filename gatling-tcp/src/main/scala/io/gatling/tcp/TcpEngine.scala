@@ -84,7 +84,7 @@ class TcpEngine {
   }
 
   def startTcpTransaction(tx: TcpTx, actor : ActorRef) ={
-    val listener = new MessageListener(actor)
+    val listener = new MessageListener(tx, actor)
 
     val (session, channel) = tcpClient(tx.session,tx.protocol, listener)
     //channel.write(tx.message)
