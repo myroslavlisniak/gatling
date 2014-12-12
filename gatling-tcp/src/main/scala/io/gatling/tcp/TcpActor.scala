@@ -40,6 +40,15 @@ class TcpActor extends BaseActor with DataWriterClient{
     case OnTextMessage(message, time) => {
       //do something, succeed pending checks
     }
+    case Disconnect(requestName, next, session) => {
+
+      logRequest(session, requestName, OK, nowMillis, nowMillis)
+      context.become(disconnectedState(tx.copy(session = session.remove("channel"))))
+    }
+  }
+
+  def disconnectedState(tx : TcpTx) : Receive = {
+    case _ => ???
   }
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {

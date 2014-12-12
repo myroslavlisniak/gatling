@@ -9,7 +9,7 @@ import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 import org.jboss.netty.bootstrap.ClientBootstrap
-import org.jboss.netty.channel.{Channels, ChannelPipeline, ChannelPipelineFactory}
+import org.jboss.netty.channel.{Channel, Channels, ChannelPipeline, ChannelPipelineFactory}
 import org.jboss.netty.channel.socket.nio.{NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory}
 import org.jboss.netty.handler.codec.frame.{LengthFieldPrepender, LengthFieldBasedFrameDecoder}
 import org.jboss.netty.handler.codec.string.{StringEncoder, StringDecoder}
@@ -71,8 +71,16 @@ class TcpEngine {
         pipeline
       }
     })
-    val channel = bootstrap.connect(new InetSocketAddress(protocol.address, protocol.port)).awaitUninterruptibly().getChannel
-    (session, channel)
+    val channelFuture = bootstrap.connect(new InetSocketAddress(protocol.address, protocol.port)).awaitUninterruptibly()
+    if(channelFuture.isSuccess) {
+      val channel = channelFuture.getChannel
+      session("channel").asOption[Channel] match {
+        case Some(ch) => (session, ch)
+        case None => (session.set("channel", channel), channel)
+      }
+    }else{
+      throw new RuntimeException
+    }
   }
 
   def startTcpTransaction(tx: TcpTx, actor : ActorRef) ={
