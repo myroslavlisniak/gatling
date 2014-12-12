@@ -2,12 +2,11 @@ package io.gatling.tcp.action
 
 import akka.actor.ActorDSL._
 import akka.actor.ActorRef
-import io.gatling.core.action.{Failable, Interruptable}
-import io.gatling.core.session.{Expression, Session}
+import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper._
 import io.gatling.core.validation.Validation
 import io.gatling.tcp._
-
 
 class TcpConnectAction(requestName: Expression[String], val next: ActorRef, protocol: TcpProtocol) extends Interruptable with Failable {
   /**
@@ -18,13 +17,13 @@ class TcpConnectAction(requestName: Expression[String], val next: ActorRef, prot
    */
 
   override def executeOrFail(session: Session): Validation[_] = {
-    def connect(tx: TcpTx): Unit = {
-      //  logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
+      def connect(tx: TcpTx): Unit = {
+        //  logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
-      val tcpActor = actor(context, actorName("tcpActor"))(new TcpActor())
-      TcpEngine.instance.startTcpTransaction(tx, tcpActor)
+        val tcpActor = actor(context, actorName("tcpActor"))(new TcpActor())
+        TcpEngine.instance.startTcpTransaction(tx, tcpActor)
 
-    }
+      }
 
     for {
       requestName <- requestName(session)

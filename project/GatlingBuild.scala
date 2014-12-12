@@ -18,7 +18,7 @@ object GatlingBuild extends Build {
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
-    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler)
+    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler, tcp)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)

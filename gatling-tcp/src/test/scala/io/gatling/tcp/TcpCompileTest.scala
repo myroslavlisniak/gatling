@@ -11,11 +11,10 @@ class TcpCompileTest extends Simulation {
     .exec(tcp("Connect").connect())
     .pause(1)
     .repeat(2, "i") {
-    exec(tcp("Say Hello Tcp")
-      .sendText( """{"text": "Hello, I'm ${id} and this is message ${i}!"}""")).pause(1)
-  }
+      exec(tcp("Say Hello Tcp")
+        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")).pause(1)
+    }
 
   setUp(scn.inject(rampUsers(100) over 10)).protocols(tcpConfig)
-
 
 }

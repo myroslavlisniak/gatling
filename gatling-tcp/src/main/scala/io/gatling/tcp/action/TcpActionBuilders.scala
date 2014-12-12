@@ -5,8 +5,7 @@ import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
-import io.gatling.tcp.{TcpProtocol, TcpMessage}
-
+import io.gatling.tcp.{ TcpProtocol, TcpMessage }
 
 class TcpConnectActionBuilder(requestName: Expression[String]) extends ActionBuilder {
   /**
