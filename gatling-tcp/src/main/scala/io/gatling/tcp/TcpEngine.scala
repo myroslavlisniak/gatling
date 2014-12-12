@@ -43,7 +43,8 @@ case class TcpTx(session: Session,
                   next : ActorRef,
                   start : Long,
                   check : Option[Check] = None,
-                  protocol : TcpProtocol)
+                  protocol : TcpProtocol,
+                  message : TcpMessage)
 
 class TcpEngine {
   val numWorkers = Runtime.getRuntime.availableProcessors()
@@ -70,7 +71,7 @@ class TcpEngine {
         pipeline
       }
     })
-    val channel = bootstrap.connect(new InetSocketAddress(protocol.address, protocol.port)).awaitUninterruptibly()
+    val channel = bootstrap.connect(new InetSocketAddress(protocol.address, protocol.port)).awaitUninterruptibly().getChannel
     (session, channel)
   }
 
@@ -78,5 +79,6 @@ class TcpEngine {
     val listener = new MessageListener(actor)
 
     val (session, channel) = tcpClient(tx.session,tx.protocol, listener)
+    channel.write(tx.message)
   }
 }
