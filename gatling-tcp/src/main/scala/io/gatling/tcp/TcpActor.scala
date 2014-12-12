@@ -18,7 +18,7 @@ class TcpActor extends BaseActor with DataWriterClient{
   }
 
   def connectedState (channel : Channel, tx : TcpTx) : Receive = {
-    case Send(requestName, message, check, next, session) => {
+    case Send(requestName, message, next, session) => {
       logger.debug(s"Sending message check on channel '$channel': $message")
 
       val now = nowMillis

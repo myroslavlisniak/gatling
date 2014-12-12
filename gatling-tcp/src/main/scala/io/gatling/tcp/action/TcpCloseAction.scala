@@ -9,8 +9,9 @@ import io.gatling.tcp.{Disconnect, Send}
 
 class TcpCloseAction(val requestName : Expression[String], val next : ActorRef) extends Interruptable with Failable{
   override def executeOrFail(session: Session): Validation[_] = {
+
     for{
-      resolvedRequestName <- requestName
+      resolvedRequestName <- requestName(session)
       tcpActor <- session("tcpActor").validate[ActorRef].mapError(m => s"Couldn't fetch open websocket: $m")
     } yield tcpActor ! Disconnect(resolvedRequestName, next, session)
   }

@@ -42,7 +42,6 @@ object TcpEngine extends AkkaDefaults with StrictLogging{
 case class TcpTx(session: Session,
                   next : ActorRef,
                   start : Long,
-                  check : Option[Check] = None,
                   protocol : TcpProtocol,
                   message : TcpMessage)
 

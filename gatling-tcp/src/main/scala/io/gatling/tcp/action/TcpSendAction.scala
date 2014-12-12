@@ -10,10 +10,10 @@ import io.gatling.tcp.{Send, TcpMessage}
 class TcpSendAction(val requestName : Expression[String], val next : ActorRef, message : Expression[TcpMessage]) extends Interruptable with Failable{
   override def executeOrFail(session: Session): Validation[_] = {
     for{
-      resolvedRequestName <- requestName
+      resolvedRequestName <- requestName(session)
       tcpActor <- session("tcpActor").validate[ActorRef].mapError(m => s"Couldn't fetch open websocket: $m")
       resolvedMessage <- message(session)
-    } yield tcpActor ! Send(resolvedRequestName, resolvedMessage, None, next, session)
+    } yield tcpActor ! Send(resolvedRequestName, resolvedMessage, next, session)
   }
 
 }

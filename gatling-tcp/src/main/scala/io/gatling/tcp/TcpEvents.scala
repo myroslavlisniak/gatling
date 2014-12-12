@@ -12,6 +12,6 @@ case class OnDisconnect(time : Long) extends TcpEvents
 case class OnTextMessage(message : String, time : Long) extends TcpEvents
 
 sealed trait TcpUserActions
-case class Connect extends TcpUserActions
-case class Send(requestName: String, message: TcpMessage, check: Option[Check], next: ActorRef, session: Session)extends TcpUserActions
+case object Connect extends TcpUserActions
+case class Send(requestName: String, message: TcpMessage, next: ActorRef, session: Session)extends TcpUserActions
 case class Disconnect(requestName: String, next: ActorRef, session : Session) extends TcpUserActions
