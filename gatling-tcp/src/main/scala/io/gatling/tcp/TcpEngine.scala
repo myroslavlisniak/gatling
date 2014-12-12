@@ -67,7 +67,7 @@ class TcpEngine {
     (session, channel)
   }
 
-  def startTcpTransaction(actor : ActorRef ) ={
+  def startTcpTransaction(actor : ActorRef) ={
 
   }
 }
