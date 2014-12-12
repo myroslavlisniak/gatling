@@ -1,0 +1,16 @@
+package io.gatling.tcp
+
+import akka.actor.ActorRef
+import io.gatling.core.check.Check
+import io.gatling.core.session.Session
+import org.jboss.netty.channel.Channel
+
+sealed trait TcpEvents
+
+case class OnConnect(tx : TcpTx, channel: Channel, time : Long) extends TcpEvents
+case class OnDisconnect(time : Long) extends TcpEvents
+case class OnTextMessage(message : String, time : Long) extends TcpEvents
+
+sealed trait TcpUserActions
+case class Connect extends TcpUserActions
+case class Send(requestName: String, message: TcpMessage, check: Option[Check], next: ActorRef, session: Session)extends TcpUserActions

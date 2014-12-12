@@ -1,11 +1,12 @@
 package io.gatling.tcp.action
 
 import akka.actor.ActorRef
-import io.gatling.core.action.Interruptable
-import io.gatling.core.session.Session
+import io.gatling.core.action.{Failable, Interruptable}
+import io.gatling.core.session.{Expression, Session}
+import io.gatling.core.validation.Validation
 
 
-class TcpOpenAction extends Interruptable{
+class TcpConnectAction(requestName : Expression[String]) extends Interruptable with Failable{
   /**
    * @return the next Action in the scenario workflow
    */
@@ -17,5 +18,6 @@ class TcpOpenAction extends Interruptable{
    * @param session the session of the virtual user
    * @return Nothing
    */
-  override def execute(session: Session): Unit = ???
+
+  override def executeOrFail(session: Session): Validation[_] = ???
 }
