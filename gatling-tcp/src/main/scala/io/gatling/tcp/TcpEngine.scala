@@ -79,6 +79,6 @@ class TcpEngine {
     val listener = new MessageListener(actor)
 
     val (session, channel) = tcpClient(tx.session,tx.protocol, listener)
-    channel.write(tx.message)
+    //channel.write(tx.message)
   }
 }
