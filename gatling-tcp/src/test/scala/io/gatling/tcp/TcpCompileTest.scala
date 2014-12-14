@@ -3,6 +3,7 @@ package io.gatling.tcp
 import io.gatling.core.Predef._
 import io.gatling.core.scenario.Simulation
 import io.gatling.tcp.Predef._
+import scala.concurrent.duration._
 
 class TcpCompileTest extends Simulation {
 
@@ -16,6 +17,6 @@ class TcpCompileTest extends Simulation {
   }
     .exec(tcp("disconnect").disconnect())
 
-  setUp(scn.inject(atOnceUsers(1))).protocols(tcpConfig)
+  setUp(scn.inject(constantUsersPerSec(5) during(5 minutes))).protocols(tcpConfig)
 
 }

@@ -128,7 +128,7 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
 
       // -- Run Gatling -- //
       val selection = Selection(simulation, simulationId, runDescription)
-  //    GA.send()
+      //    GA.send()
       new Runner(selection).run
     }
   }
