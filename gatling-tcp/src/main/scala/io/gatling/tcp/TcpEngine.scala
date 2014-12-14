@@ -35,7 +35,7 @@ object TcpEngine extends AkkaDefaults with StrictLogging {
 
   def instance: TcpEngine = _instance match {
     case Some(engine) => engine
-    case _            => throw new UnsupportedOperationException("HTTP engine hasn't been started")
+    case _            => throw new UnsupportedOperationException("Tcp engine hasn't been started")
   }
 }
 case class TcpTx(session: Session,

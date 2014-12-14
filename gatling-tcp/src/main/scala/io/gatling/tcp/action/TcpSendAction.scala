@@ -10,7 +10,7 @@ class TcpSendAction(val requestName: Expression[String], val next: ActorRef, mes
   override def executeOrFail(session: Session): Validation[_] = {
     for {
       resolvedRequestName <- requestName(session)
-      tcpActor <- session("tcpActor").validate[ActorRef].mapError(m => s"Couldn't fetch open websocket: $m")
+      tcpActor <- session("tcpActor").validate[ActorRef].mapError(m => s"Couldn't fetch tcp channel: $m")
       resolvedMessage <- message(session)
     } yield tcpActor ! Send(resolvedRequestName, resolvedMessage, next, session)
   }

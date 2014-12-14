@@ -12,9 +12,10 @@ class TcpCompileTest extends Simulation {
     .pause(1)
     .repeat(2, "i") {
       exec(tcp("Say Hello Tcp")
-        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")).pause(1)
+        .sendText("""{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}""")).pause(1)
     }
+  .exec(tcp("disconnect").disconnect())
 
-  setUp(scn.inject(rampUsers(100) over 10)).protocols(tcpConfig)
+  setUp(scn.inject(atOnceUsers(1))).protocols(tcpConfig)
 
 }

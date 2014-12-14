@@ -12,8 +12,13 @@ class TcpActor extends BaseActor with DataWriterClient {
   override def receive: Receive = initialState
 
   val initialState: Receive = {
-    case OnConnect(tx, channel, time) => context.become(connectedState(channel, tx))
-    case _                            => context.stop(self)
+    case OnConnect(tx, channel, time) =>
+      val newSession = tx.session.set("tcpActor", self)
+      val newTx = tx.copy(session = newSession)
+      context.become(connectedState(channel, newTx))
+      tx.next ! newSession
+      logRequest(tx.session, "connect", OK, nowMillis, nowMillis)
+    case _ => context.stop(self)
   }
 
   def connectedState(channel: Channel, tx: TcpTx): Receive = {
@@ -33,6 +38,7 @@ class TcpActor extends BaseActor with DataWriterClient {
         case TextTcpMessage(text) => channel.write(text)
         case _                    => logger.warn("Only text messages supported")
       }
+      tx.next ! session
 
       logRequest(session, requestName, OK, now, now)
     }
@@ -41,13 +47,16 @@ class TcpActor extends BaseActor with DataWriterClient {
     }
     case Disconnect(requestName, next, session) => {
 
+      channel.close()
       logRequest(session, requestName, OK, nowMillis, nowMillis)
-      context.become(disconnectedState(tx.copy(session = session.remove("channel"))))
+      val newSession: Session = session.remove("channel")
+      context.become(disconnectedState(tx.copy(session = newSession)))
+      tx.next ! newSession
     }
   }
 
   def disconnectedState(tx: TcpTx): Receive = {
-    case _ => ???
+    case _ =>
   }
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
