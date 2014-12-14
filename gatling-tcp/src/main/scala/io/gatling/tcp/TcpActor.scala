@@ -38,7 +38,7 @@ class TcpActor extends BaseActor with DataWriterClient {
         case TextTcpMessage(text) => channel.write(text)
         case _                    => logger.warn("Only text messages supported")
       }
-      tx.next ! session
+      next ! session
 
       logRequest(session, requestName, OK, now, now)
     }
@@ -47,16 +47,19 @@ class TcpActor extends BaseActor with DataWriterClient {
     }
     case Disconnect(requestName, next, session) => {
 
+      logger.debug(s"Disconnect channel for session: $session")
       channel.close()
-      logRequest(session, requestName, OK, nowMillis, nowMillis)
       val newSession: Session = session.remove("channel")
-      context.become(disconnectedState(tx.copy(session = newSession)))
-      tx.next ! newSession
+      //
+      next ! newSession
+      logRequest(session, requestName, OK, nowMillis, nowMillis)
     }
+    case OnDisconnect(time) =>
+      context.become(disconnectedState(tx))
   }
 
   def disconnectedState(tx: TcpTx): Receive = {
-    case _ =>
+    case a: AnyRef => logger.error(a.toString)
   }
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
