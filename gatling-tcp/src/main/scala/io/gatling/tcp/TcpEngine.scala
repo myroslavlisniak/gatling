@@ -8,6 +8,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.Check
 import io.gatling.core.session.Session
+import io.gatling.tcp.check.TcpCheck
 import org.jboss.netty.bootstrap.ClientBootstrap
 import org.jboss.netty.channel.{ Channel, Channels, ChannelPipeline, ChannelPipelineFactory }
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
@@ -42,7 +43,15 @@ case class TcpTx(session: Session,
                  next: ActorRef,
                  start: Long,
                  protocol: TcpProtocol,
-                 message: TcpMessage)
+                 message: TcpMessage,
+                 requestName: String,
+                 check : Option[TcpCheck] = None,
+                 updates: List[Session => Session] = Nil){
+  def applyUpdates(session: Session) = {
+    val newSession = session.update(updates)
+    copy(session = newSession, updates = Nil)
+  }
+}
 
 class TcpEngine {
   val numWorkers = Runtime.getRuntime.availableProcessors()

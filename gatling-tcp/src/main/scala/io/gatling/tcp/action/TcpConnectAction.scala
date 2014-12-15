@@ -27,6 +27,6 @@ class TcpConnectAction(requestName: Expression[String], val next: ActorRef, prot
 
     for {
       requestName <- requestName(session)
-    } yield connect(TcpTx(session, next, protocol = protocol, message = TextTcpMessage(""), start = nowMillis))
+    } yield connect(TcpTx(session, next, requestName = requestName, protocol = protocol, message = TextTcpMessage(""), start = nowMillis))
   }
 }

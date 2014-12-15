@@ -13,7 +13,9 @@ class TcpCompileTest extends Simulation {
     .pause(1)
     .repeat(2, "i") {
        exec(tcp("Say Hello Tcp")
-      .sendText( """{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}""")).pause(1)
+      .sendText( """{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}""")
+       .check(tcpCheck.within(5 seconds).regex( """"contextId":"(.+?)"""").saveAs("contextId"))
+       ).pause(1)
   }
     .exec(tcp("disconnect").disconnect())
 
