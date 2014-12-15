@@ -45,8 +45,8 @@ case class TcpTx(session: Session,
                  protocol: TcpProtocol,
                  message: TcpMessage,
                  requestName: String,
-                 check : Option[TcpCheck] = None,
-                 updates: List[Session => Session] = Nil){
+                 check: Option[TcpCheck] = None,
+                 updates: List[Session => Session] = Nil) {
   def applyUpdates(session: Session) = {
     val newSession = session.update(updates)
     copy(session = newSession, updates = Nil)

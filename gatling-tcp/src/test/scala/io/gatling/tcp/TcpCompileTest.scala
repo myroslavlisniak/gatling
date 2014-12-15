@@ -11,14 +11,16 @@ class TcpCompileTest extends Simulation {
   val scn = scenario("Tcp")
     .exec(tcp("Connect").connect())
     .pause(1)
+    .exec(tcp("Create Context").sendText( """{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}""")
+      .check(tcpCheck.within(5 seconds).regex( """"contextId":"(.+?)"""").saveAs("contextId")))
     .repeat(2, "i") {
        exec(tcp("Say Hello Tcp")
-      .sendText( """{"qualifier":"pt.openapi.context/createContextRequest","data":{"properties":null}}""")
-       .check(tcpCheck.within(5 seconds).regex( """"contextId":"(.+?)"""").saveAs("contextId"))
-       ).pause(1)
+      .sendText( """{"qualifier":"pt.openapi.hello/sayHello","contextId":"$contextId","data":{"name":"Kyiv"}}""")
+       .check(tcpCheck.within(5 seconds).regex( """Hello(.*)""").exists)
+       )
   }
     .exec(tcp("disconnect").disconnect())
 
-  setUp(scn.inject(constantUsersPerSec(5) during(5 minutes))).protocols(tcpConfig)
+  setUp(scn.inject(atOnceUsers(1))).protocols(tcpConfig)
 
 }
