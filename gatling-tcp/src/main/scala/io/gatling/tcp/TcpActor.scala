@@ -75,7 +75,7 @@ class TcpActor extends BaseActor with DataWriterClient {
             case io.gatling.core.validation.Success(result) =>
 
               succeedPendingCheck(result)
-            case _ => failPendingCheck(tx, "check failed")
+            case s => failPendingCheck(tx, s"check failed $s")
 
           }
         }
@@ -83,12 +83,13 @@ class TcpActor extends BaseActor with DataWriterClient {
       case CheckTimeout(check) =>
         tx.check match {
           case Some(`check`) =>
-          case _ =>
+
             val newTx = failPendingCheck(tx, "Check failed: Timeout")
             context.become(connectedState(channel, newTx))
 
             // release blocked session
             newTx.next ! newTx.applyUpdates(newTx.session).session
+          case _ =>
         }
 
       // ignore outdated timeout
